@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'Screens/home_page.dart';
+import 'Screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Whatsapp UI Clone',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const HomePage(),
+      home: const SplashScreen(),
     );
   }
 }

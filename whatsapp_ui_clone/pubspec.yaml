@@ -12,13 +12,16 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  just_audio: ^0.10.5
+  just_audio_web: ^0.4.16
+  video_player: ^2.10.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^6.0.0
-
+  
 flutter:
 
   uses-material-design: true
@@ -26,6 +29,7 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
+    - assets/audios/
     - assets/fonts/Gravitas_One/
 
   fonts:

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:whatsapp_ui_clone/Constants/custom_colors.dart';
 import 'package:whatsapp_ui_clone/Models/user_model.dart';
 
@@ -9,6 +10,8 @@ import '../Utils/show_toaster_message.dart';
 import '../Widgets/custom_chat_card.dart';
 import '../Widgets/spacing.dart';
 import '../Widgets/styled_text.dart';
+import 'player_screen.dart';
+import 'video_app.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,6 +25,25 @@ class _HomePageState extends State<HomePage> {
   Timer? _timer;
   final Duration _duration = Duration(seconds: 1);
   String currentTimer = "";
+  List<UserModel> allData = [];
+
+  void implementSearch({required String search}) {
+    allData.clear();
+    if (search.isNotEmpty) {
+      setState(() {
+        allData.addAll(
+          userChats.where(
+            (element) =>
+                element.name.toLowerCase().contains(search.toLowerCase()),
+          ),
+        );
+      });
+    } else {
+      setState(() {
+        allData.addAll(userChats);
+      });
+    }
+  }
 
   void updateStatus(bool value) {
     // setState(() {
@@ -40,6 +62,12 @@ class _HomePageState extends State<HomePage> {
         _timer?.cancel();
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    allData.addAll(userChats);
   }
 
   @override
@@ -123,11 +151,39 @@ class _HomePageState extends State<HomePage> {
           ),
           Spacing(),
           StyledText(text: "Timer = $currentTimer"),
+          StyledText(
+            text: "Media Query = ${MediaQuery.of(context).size.width}",
+          ),
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PlayerScreen()),
+            ),
+            child: StyledText(text: "Go to player"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => VideoApp()),
+            ),
+            child: StyledText(text: "Go to Video"),
+          ),
+          Spacing(),
+          TextFormField(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: CustomColors.darkGreen),
+              ),
+              hint: StyledText(text: "Search users...."),
+            ),
+            onChanged: (value) => implementSearch(search: value),
+          ),
           Spacing(),
           Expanded(
             child: ListView(
               shrinkWrap: true,
-              children: userChats
+              children: allData
                   .map(
                     (e) => CustomChatCard(
                       name: e.name,
