@@ -10,6 +10,7 @@ import '../Utils/show_toaster_message.dart';
 import '../Widgets/custom_chat_card.dart';
 import '../Widgets/spacing.dart';
 import '../Widgets/styled_text.dart';
+import 'image_picker_screen.dart';
 import 'player_screen.dart';
 import 'video_app.dart';
 
@@ -26,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   final Duration _duration = Duration(seconds: 1);
   String currentTimer = "";
   List<UserModel> allData = [];
+  IconData icon = Icons.keyboard_arrow_down_rounded;
 
   void implementSearch({required String search}) {
     allData.clear();
@@ -79,6 +81,66 @@ class _HomePageState extends State<HomePage> {
           text: "Whatsapp UI Clone",
           fontSize: 18,
           fontColor: CustomColors.white,
+        ),
+        actions: [
+          PopupMenuButton(
+            position: PopupMenuPosition.under,
+            icon: Icon(icon),
+            onOpened: () {
+              setState(() {
+                icon = Icons.keyboard_arrow_up_rounded;
+              });
+            },
+            onCanceled: () {
+              setState(() {
+                icon = Icons.keyboard_arrow_down_rounded;
+              });
+            },
+            onSelected: (value) {
+              setState(() {
+                icon = Icons.keyboard_arrow_down_rounded;
+              });
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: StyledText(text: "Profile"),
+                onTap: () {},
+              ),
+              PopupMenuItem(
+                child: StyledText(text: "Data"),
+                onTap: () {},
+              ),
+              PopupMenuItem(
+                child: StyledText(text: "Settings"),
+                onTap: () {},
+              ),
+            ],
+          ),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, -2),
+              color: CustomColors.black.withValues(alpha: 0.2),
+            ),
+          ],
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+          color: CustomColors.white,
+        ),
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [Icons.home, Icons.chat, Icons.phone]
+              .map(
+                (e) => Expanded(
+                  child: InkWell(onTap: () {}, child: Icon(e)),
+                ),
+              )
+              .toList(),
         ),
       ),
       body: Column(
@@ -167,6 +229,13 @@ class _HomePageState extends State<HomePage> {
               MaterialPageRoute(builder: (context) => VideoApp()),
             ),
             child: StyledText(text: "Go to Video"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ImagePickerScreen()),
+            ),
+            child: StyledText(text: "Pick Image"),
           ),
           Spacing(),
           TextFormField(
