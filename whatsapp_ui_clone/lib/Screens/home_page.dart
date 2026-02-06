@@ -1,18 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 import 'package:whatsapp_ui_clone/Constants/custom_colors.dart';
-import 'package:whatsapp_ui_clone/Models/user_model.dart';
+import 'package:whatsapp_ui_clone/Providers/cart_provider.dart';
+import 'package:whatsapp_ui_clone/Screens/cart_screen.dart';
+import 'package:whatsapp_ui_clone/Widgets/spacing.dart';
 
-import '../Constants/user_chats.dart';
-import '../Utils/show_toaster_message.dart';
-import '../Widgets/custom_chat_card.dart';
-import '../Widgets/spacing.dart';
+import '../Constants/products_data.dart';
 import '../Widgets/styled_text.dart';
-import 'image_picker_screen.dart';
-import 'player_screen.dart';
-import 'video_app.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,56 +16,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // bool _isStatusOpen = false;
-  Timer? _timer;
-  final Duration _duration = Duration(seconds: 1);
-  String currentTimer = "";
-  List<UserModel> allData = [];
-  IconData icon = Icons.keyboard_arrow_down_rounded;
-
-  void implementSearch({required String search}) {
-    allData.clear();
-    if (search.isNotEmpty) {
-      setState(() {
-        allData.addAll(
-          userChats.where(
-            (element) =>
-                element.name.toLowerCase().contains(search.toLowerCase()),
-          ),
-        );
-      });
-    } else {
-      setState(() {
-        allData.addAll(userChats);
-      });
-    }
-  }
-
-  void updateStatus(bool value) {
-    // setState(() {
-    //   _isStatusOpen = value;
-    // });
-    // _timer = Timer(_duration, () {
-    //   // Navigator.pop(context);
-    //   showCustomToaster(context: context, message: "Timer complete ho gya hai");
-    // });
-    _timer = Timer.periodic(_duration, (timer) {
-      setState(() {
-        currentTimer = "${timer.tick}";
-      });
-      if (timer.tick == 10) {
-        showCustomToaster(context: context, message: "Timer completed");
-        _timer?.cancel();
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    allData.addAll(userChats);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,184 +27,74 @@ class _HomePageState extends State<HomePage> {
           fontColor: CustomColors.white,
         ),
         actions: [
-          PopupMenuButton(
-            position: PopupMenuPosition.under,
-            icon: Icon(icon),
-            onOpened: () {
-              setState(() {
-                icon = Icons.keyboard_arrow_up_rounded;
-              });
-            },
-            onCanceled: () {
-              setState(() {
-                icon = Icons.keyboard_arrow_down_rounded;
-              });
-            },
-            onSelected: (value) {
-              setState(() {
-                icon = Icons.keyboard_arrow_down_rounded;
-              });
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                child: StyledText(text: "Profile"),
-                onTap: () {},
-              ),
-              PopupMenuItem(
-                child: StyledText(text: "Data"),
-                onTap: () {},
-              ),
-              PopupMenuItem(
-                child: StyledText(text: "Settings"),
-                onTap: () {},
-              ),
-            ],
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CartScreen()),
+            ),
+            icon: Stack(
+              children: [
+                Icon(Icons.shopping_cart_outlined),
+                Transform.translate(
+                  offset: Offset(-10, -10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: CustomColors.red,
+                    ),
+                    padding: EdgeInsets.all(6),
+                    child: StyledText(
+                      text:
+                          "${context.watch<CartProvider>().productsInCart.length}",
+                      fontColor: CustomColors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, -2),
-              color: CustomColors.black.withValues(alpha: 0.2),
-            ),
-          ],
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-          ),
-          color: CustomColors.white,
+      body: GridView(
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 120,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
         ),
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [Icons.home, Icons.chat, Icons.phone]
-              .map(
-                (e) => Expanded(
-                  child: InkWell(onTap: () {}, child: Icon(e)),
-                ),
-              )
-              .toList(),
-        ),
-      ),
-      body: Column(
         children: [
-          Spacing(),
-          SizedBox(
-            height: 90,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemCount: userChats.length,
-              separatorBuilder: (context, index) =>
-                  Spacing(spacing: 4, type: Type.horizontal),
-              itemBuilder: (context, index) {
-                UserModel e = userChats[index];
-                return ClipRRect(
-                  borderRadius: BorderRadiusGeometry.circular(100),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(100),
-                      onTap: () => {
-                        updateStatus(true),
-                        // showCustomBottomSheet(
-                        //   context: context,
-                        //   title: "${e.name} ${_timer?.tick}",
-                        //   child: Center(
-                        //     child: Visibility(
-                        //       replacement: StyledText(
-                        //         text: "No Image to display",
-                        //         fontColor: CustomColors.white,
-                        //       ),
-                        //       visible: e.image != null,
-                        //       child: Image.network(e.image ?? ""),
-                        //     ),
-                        //   ),
-                        // ),
-                      },
-                      child: Visibility(
-                        replacement: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(
-                              color: CustomColors.darkGreen2,
-                              width: 2,
-                            ),
-                          ),
-                          child: StyledText(text: "No Image"),
-                        ),
-                        visible: e.image != null,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(
-                              color: CustomColors.darkGreen2,
-                              width: 4,
-                            ),
-                          ),
-                          child: Image.network(
-                            e.image ?? "",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
+          ...products.map(
+            (e) => Container(
+              decoration: BoxDecoration(border: Border.all()),
+              child: Column(
+                children: [
+                  StyledText(text: e.name, fontSize: 16),
+                  Spacing(),
+                  StyledText(text: "${e.price}"),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (context.read<CartProvider>().productsInCart.any(
+                        (element) => element.id == e.id,
+                      )) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => CartScreen()),
+                        );
+                      } else {
+                        context.read<CartProvider>().addToCart(e);
+                      }
+                    },
+                    child: StyledText(
+                      text:
+                          context.watch<CartProvider>().productsInCart.any(
+                            (element) => element.id == e.id,
+                          )
+                          ? "Go To Cart"
+                          : "Add To Cart",
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-          Spacing(),
-          StyledText(text: "Timer = $currentTimer"),
-          StyledText(
-            text: "Media Query = ${MediaQuery.of(context).size.width}",
-          ),
-          TextButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PlayerScreen()),
-            ),
-            child: StyledText(text: "Go to player"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => VideoApp()),
-            ),
-            child: StyledText(text: "Go to Video"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ImagePickerScreen()),
-            ),
-            child: StyledText(text: "Pick Image"),
-          ),
-          Spacing(),
-          TextFormField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: CustomColors.darkGreen),
+                ],
               ),
-              hint: StyledText(text: "Search users...."),
-            ),
-            onChanged: (value) => implementSearch(search: value),
-          ),
-          Spacing(),
-          Expanded(
-            child: ListView(
-              shrinkWrap: true,
-              children: allData
-                  .map(
-                    (e) => CustomChatCard(
-                      name: e.name,
-                      image: e.image,
-                      lastMessage: e.lastMessage,
-                    ),
-                  )
-                  .toList(),
             ),
           ),
         ],
